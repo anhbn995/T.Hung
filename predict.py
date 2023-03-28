@@ -17,6 +17,8 @@ config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth=True
 set_session(tf.compat.v1.Session(config=config))
 
+
+size_model = 128
 def predict(model, path_image, path_predict, size=128):
     print(path_image)
     # qt_scheme = get_quantile_schema(path_image)
@@ -130,49 +132,19 @@ def Morphology(image):
     img = cv2.morphologyEx(img, cv2.MORPH_CLOSE, kernel2)
     return img
     
-if __name__=="__main__":
-    # model_path = r"/home/skm/SKM16/Tmp/HIEEU/weights_landcover/model_dat_trong_v3.h5"
-    # folder_image_path = r'/home/skm/SKM16/Tmp/HIEEU/germany_test'
-    # folder_output_path = r'/home/skm/SKM16/Tmp/HIEEU/germany_test/model_dat_trong_v3'
-    # # image_path = '/home/boom/data/green_cover/green_demo/images/2020.tif'
     
-    # # output_tif = '/home/boom/data/green_cover/green_demo/results/test.tif'
-    # size_model = 256
-    # model = unet_basic((size_model, size_model, 4))
-    # model.load_weights(model_path)
-    # # predict(model, image_path, output_tif)
-
-    # model_path = r"/home/skm/SKM16/X/Lo/Samples_V4_2023_03_12/gen_cut128stride100_TruotLo/model/gen_cut128stride100_TruotLo.h5"
-    # folder_image_path = r'/home/skm/SKM16/X/Lo/Full_Images_LandslideDetection'
-    # folder_output_path = r'/home/skm/SKM16/X/Lo/Full_Images_LandslideDetection/gen_cut128stride100_TruotLo'
-    
-    model_path = r'/home/skm/SKM16/Tmp/HIEEU/weights_landcover/model_building256_2.h5'
-    folder_image_path = r'/home/skm/SKM16/Tmp/HIEEU/test2'
-    folder_output_path = r'/home/skm/SKM16/Tmp/HIEEU/test2/test2_kp'
-    
-    
-    # image_path = '/home/boom/data/green_cover/green_demo/images/2020.tif'
-    
-    # output_tif = '/home/boom/data/green_cover/green_demo/results/test.tif'
-    size_model = 128
+def main_predict(model_path, fp_img, outputpredict):
     model = unet_basic((size_model, size_model, 4))
     model.load_weights(model_path)
-
-
-    list_image=create_list_id(folder_image_path)
+    if not os.path.exists(outputpredict):
+        print(fp_img)
+        predict(model, fp_img, outputpredict, size_model)
+        return outputpredict
+    else:
+        print("Loi roi do sai duong dan anh")
     
-    if not os.path.exists(folder_output_path):
-        os.makedirs(folder_output_path)
-    for image_path in tqdm(list_image):
-        image_name = os.path.basename(image_path)     
-        fp_img = os.path.join(folder_image_path, image_name)+".tif"
-        # if fp_img=="/home/skm/SKM16/X/Lo/Full_Images_LandslideDetection_8bit_perimage/Full_Images_LandslideDetection/S2B_L2A_20190221_Full.tif":
-            # continue
-        outputpredict = os.path.join(folder_output_path,image_name) +".tif"
-        # print("1233456789", outputpredict)
-        
-        if not os.path.exists(outputpredict):
-            print(fp_img)
-            predict(model, fp_img, outputpredict, size_model)
-        else:
-            pass
+if __name__=="__main__":
+    model_path = r'/home/skm/SKM16/X/Lo/Full_Images_LandslideDetection_8bit_perimage/gen_cut128stride100_TruotLo_UINT8/model/gen_cut128stride100_TruotLo_UINT82.h5'
+    fp_img = r'/home/skm/SKM16/X/Lo/Full_Images_LandslideDetection_8bit_perimage/Img_uint8_crop/db_180310.tif'
+    outputpredict = r'/home/skm/SKM16/X/Lo/Full_Images_LandslideDetection_8bit_perimage/Img_uint8_crop/gen_cut128stride100_TruotLo_UINT82/db_180310.tif'
+    main_predict(model_path, fp_img, outputpredict)
