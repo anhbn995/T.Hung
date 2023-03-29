@@ -1,14 +1,11 @@
-import numpy as np
 import rasterio
 from rasterio.windows import Window
 import threading
+import numpy as np
 from tqdm import tqdm
 import concurrent.futures
 import warnings, cv2, os
 import tensorflow as tf
-# import Vectorization
-from skimage.morphology import skeletonize, remove_small_holes, remove_small_objects
-from utils import get_range_value, create_list_id
 from tensorflow.compat.v1.keras.backend import set_session
 from model import unet_basic
 
@@ -19,6 +16,15 @@ set_session(tf.compat.v1.Session(config=config))
 
 
 size_model = 128
+
+def get_range_value(img, val=15000):
+    data = np.empty(img.shape)
+    for i in range(4):
+        data[i] = img[i]/val
+        mask = (data[i] <= 1)
+        data[i] = data[i]*mask
+    return data
+
 def predict(model, path_image, path_predict, size=128):
     print(path_image)
     # qt_scheme = get_quantile_schema(path_image)
@@ -141,10 +147,10 @@ def main_predict(model_path, fp_img, outputpredict):
         predict(model, fp_img, outputpredict, size_model)
         return outputpredict
     else:
-        print("Loi roi do sai duong dan anh")
+        print(f"đã có predict ảnh: {outputpredict}")
     
 if __name__=="__main__":
-    model_path = r'/home/skm/SKM16/X/Lo/Full_Images_LandslideDetection_8bit_perimage/gen_cut128stride100_TruotLo_UINT8/model/gen_cut128stride100_TruotLo_UINT82.h5'
-    fp_img = r'/home/skm/SKM16/X/Lo/Full_Images_LandslideDetection_8bit_perimage/Img_uint8_crop/db_180310.tif'
-    outputpredict = r'/home/skm/SKM16/X/Lo/Full_Images_LandslideDetection_8bit_perimage/Img_uint8_crop/gen_cut128stride100_TruotLo_UINT82/db_180310.tif'
+    model_path = r'D:\python\THung\data\Model\gen_cut128stride100_TruotLo_UINT82.h5'
+    fp_img = r'D:\python\THung\data\ImageTest\db_180310.tif'
+    outputpredict = r'D:\python\THung\data\ImageTest\RS\db_180310_test.tif'
     main_predict(model_path, fp_img, outputpredict)
