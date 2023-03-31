@@ -2,21 +2,24 @@ import rasterio
 from rasterio.windows import Window
 import threading
 import numpy as np
-from tqdm import tqdm
+# from tqdm import tqdm
 import concurrent.futures
 import warnings, cv2, os
 import tensorflow as tf
-from tensorflow.compat.v1.keras.backend import set_session
+import requests
+import email.utils as EmailUtils
+import time
+from cryptography.fernet import Fernet
+# from tensorflow.compat.v1.keras.backend import set_session
 from model import unet_basic
 
 warnings.filterwarnings("ignore")
 config = tf.compat.v1.ConfigProto()
 config.gpu_options.allow_growth=True
-set_session(tf.compat.v1.Session(config=config))
+# set_session(tf.compat.v1.Session(config=config))
 
 
 size_model = 128
-
 def get_range_value(img, val=15000):
     data = np.empty(img.shape)
     for i in range(4):
@@ -26,7 +29,7 @@ def get_range_value(img, val=15000):
     return data
 
 def predict(model, path_image, path_predict, size=128):
-    print(path_image)
+    # print(path_image)
     # qt_scheme = get_quantile_schema(path_image)
     with rasterio.open(path_image) as raster:
         meta = raster.meta
@@ -118,9 +121,10 @@ def predict(model, path_image, path_predict, size=128):
                         
                         with write_lock:
                             r.write(y[np.newaxis,...], window=Window(start_x, start_y, shape[1], shape[0]))
-            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
-                results = list(tqdm(executor.map(process, list_coordinates), total=len(list_coordinates)))
-
+            # with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            #     results = list(tqdm(executor.map(process, list_coordinates), total=len(list_coordinates)))
+            for i in list_coordinates:
+                process(i)
 def Morphology(image):
     kernel = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
     kernel2 = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
@@ -142,15 +146,35 @@ def Morphology(image):
 def main_predict(model_path, fp_img, outputpredict):
     model = unet_basic((size_model, size_model, 4))
     model.load_weights(model_path)
-    if not os.path.exists(outputpredict):
-        print(fp_img)
-        predict(model, fp_img, outputpredict, size_model)
-        return outputpredict
-    else:
-        print(f"đã có predict ảnh: {outputpredict}")
+    # if not os.path.exists(outputpredict):
+        # print(fp_img)
+    predict(model, fp_img, outputpredict, size_model)
+        # print(outputpredict)
+        # return outputpredict
+    # else:
+        # print(f"đã có predict ảnh: {outputpredict}")
     
 if __name__=="__main__":
-    model_path = r'D:\python\THung\data\Model\gen_cut128stride100_TruotLo_UINT82.h5'
-    fp_img = r'D:\python\THung\data\ImageTest\db_180310.tif'
-    outputpredict = r'D:\python\THung\data\ImageTest\RS\db_180310_test.tif'
-    main_predict(model_path, fp_img, outputpredict)
+    r = requests.head("https://cdn.sstatic.net/favicon.ico")
+    date_str = r.headers["Date"]
+    date_time = EmailUtils.parsedate_to_datetime(date_str)
+    currentUnix = time.mktime(date_time.timetuple())
+    message = "1680856305"
+    # key = Fernet.generate_key()
+    # print(key)
+    fernet = Fernet(b"XmE1Uzij1IcyXSzC7hMqU_2_LanhIqFDc0oLOw_6E5w=")
+    encMessage = fernet.encrypt(message.encode())
+  
+    print("encrypted string: ", encMessage)
+    encMessage2 = str.encode("gAAAAABkJpw9nrlMgkmkTB_PuB1UknN_8LChhvi_g51iXWGiZCi-QSU1a3_HVhyDCbt3kc_yFNGEBk_rcVJ-bhMxtrY_VUxa7Q==")
+    decMessage = fernet.decrypt(encMessage2).decode()
+    print("decrypted string: ", decMessage)
+    expireUnix = float(decMessage)
+    if expireUnix > currentUnix:
+        print("Hop le")
+    else:
+        print("Het han")
+    # model_path = r'D:\python\THung\data\Model\gen_cut128stride100_TruotLo_UINT82.h5'
+    # fp_img = r'D:\python\THung\data\ImageTest\db_180310.tif'
+    # outputpredict = r'D:\python\THung\data\ImageTest\RS\db_180310_test4.tif'
+    # main_predict(model_path, fp_img, outputpredict)

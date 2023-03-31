@@ -5,7 +5,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Convolution2D, UpSampling2D, MaxPooling2D, Concatenate, Dropout, Dense
 from tensorflow.keras.layers import concatenate as merge_l
 from tensorflow.keras import optimizers
-from unet_utils import *
+# from unet_utils import *
 
 def unet_basic(input_shape, num_class=1):
     conv_params = dict(activation='relu', padding='same')

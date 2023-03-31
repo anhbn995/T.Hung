@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata xml:lang="en"><Esri><CreaDate>20230331</CreaDate><CreaTime>12014400</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce><DataProperties><lineage><Process ToolSource="D:\python\arcgis-predict-tools\DA Tools.pyt\PredictTool" Date="20230331" Time="120144">PredictTool D:\python\THung\data\Model\gen_cut128stride100_TruotLo_UINT82.h5 D:\python\THung\data\ImageTest\db_180409.tif D:\python\THung\data\ImageTest\RS\db_output.tif</Process></lineage></DataProperties></Esri></metadata>
